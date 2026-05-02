@@ -1,34 +1,45 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  component: HomeComponent,
+	component: HomeComponent,
 });
 
-const TITLE_TEXT = `
- ██████╗ ███████╗████████╗████████╗███████╗██████╗
- ██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗
- ██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝
- ██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗
- ██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║
- ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝
-
- ████████╗    ███████╗████████╗ █████╗  ██████╗██╗  ██╗
- ╚══██╔══╝    ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
-    ██║       ███████╗   ██║   ███████║██║     █████╔╝
-    ██║       ╚════██║   ██║   ██╔══██║██║     ██╔═██╗
-    ██║       ███████║   ██║   ██║  ██║╚██████╗██║  ██╗
-    ╚═╝       ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
- `;
-
 function HomeComponent() {
-  return (
-    <div className="container mx-auto max-w-3xl px-4 py-2">
-      <pre className="overflow-x-auto font-mono text-sm">{TITLE_TEXT}</pre>
-      <div className="grid gap-6">
-        <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">API Status</h2>
-        </section>
-      </div>
-    </div>
-  );
+	return (
+		<div
+			className="flex min-h-screen items-center justify-center"
+			style={{ background: "linear-gradient(to bottom, #181f35, #171e32)" }}
+		>
+			<div
+				className="w-[40%] rounded-lg p-8 shadow-xl"
+				style={{ backgroundColor: "#222b40" }}
+			>
+				<h1
+					className="mb-2 text-center font-bold text-3xl"
+					style={{ color: "#36b0f8" }}
+				>
+					Ponto Up
+				</h1>
+				<p className="mb-6 text-center" style={{ color: "#79889e" }}>
+					Bem-vindo ao sistema
+				</p>
+				<div className="flex flex-col gap-3">
+					<Link
+						to="/signin"
+						className="block w-full rounded-md px-4 py-2 text-center font-medium text-white"
+						style={{ backgroundColor: "#2c77f9" }}
+					>
+						Entrar
+					</Link>
+					<Link
+						to="/signup"
+						className="block w-full rounded-md px-4 py-2 text-center font-medium text-white"
+						style={{ backgroundColor: "#2a374b" }}
+					>
+						Cadastrar
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
 }
