@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { authClient } from "../lib/auth-client";
 
 export const Route = createFileRoute("/signup")({
 	component: SignUpComponent,
@@ -20,13 +21,24 @@ function SignUpComponent() {
 		formState: { errors },
 	} = useForm<dataSubmit>();
 
-	function onSubmit(data: dataSubmit) {
+	async function onSubmit(data: dataSubmit) {
 		if (data.password !== data.confirmPassword) {
 			toast.error("Senhas incompatíveis");
 			return;
 		}
-		console.log("SignUp data:", data);
-		// TODO: Implement actual sign up logic
+
+		try {
+			await authClient.signUp.email({
+				email: data.email,
+				password: data.password,
+				name: data.name,
+			});
+			toast.success("Cadastro realizado com sucesso!");
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : "Erro ao realizar cadastro",
+			);
+		}
 	}
 
 	return (
@@ -111,7 +123,7 @@ function SignUpComponent() {
 					</div>
 					<button
 						type="submit"
-						className="w-full rounded-md px-4 py-2 font-medium text-white"
+						className="w-full cursor-pointer rounded-md px-4 py-2 font-medium text-white"
 						style={{ backgroundColor: "#2c77f9" }}
 					>
 						Cadastrar

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { authClient } from "../lib/auth-client";
 
 export const Route = createFileRoute("/signin")({
 	component: SignInComponent,
@@ -18,7 +19,7 @@ function SignInComponent() {
 		formState: { errors },
 	} = useForm<SignInData>();
 
-	function onSubmit(data: SignInData) {
+	async function onSubmit(data: SignInData) {
 		if (Object.keys(errors).length > 0) {
 			Object.values(errors).forEach((error) => {
 				if (error?.message) {
@@ -27,8 +28,18 @@ function SignInComponent() {
 			});
 			return;
 		}
-		console.log("SignIn data:", data);
-		// TODO: Implement actual sign in logic
+
+		try {
+			await authClient.signIn.email({
+				email: data.email,
+				password: data.password,
+			});
+			toast.success("Login realizado com sucesso!");
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : "Erro ao realizar login",
+			);
+		}
 	}
 
 	return (
@@ -83,7 +94,7 @@ function SignInComponent() {
 					</div>
 					<button
 						type="submit"
-						className="w-full rounded-md px-4 py-2 font-medium text-white"
+						className="w-full cursor-pointer rounded-md px-4 py-2 font-medium text-white"
 						style={{ backgroundColor: "#2c77f9" }}
 					>
 						Entrar
