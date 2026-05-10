@@ -11,7 +11,7 @@ function HomeComponent() {
 			style={{ background: "linear-gradient(to bottom, #181f35, #171e32)" }}
 		>
 			<div
-				className="w-[40%] rounded-lg p-8 shadow-xl"
+				className="w-[30%] rounded-lg p-8 shadow-xl"
 				style={{ backgroundColor: "#222b40" }}
 			>
 				<h1
