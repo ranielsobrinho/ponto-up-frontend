@@ -20,9 +20,14 @@ import {
 interface CreatePointModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	updateData: () => void;
 }
 
-function CreatePointModal({ open, onOpenChange }: CreatePointModalProps) {
+function CreatePointModal({
+	open,
+	onOpenChange,
+	updateData,
+}: CreatePointModalProps) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const {
@@ -42,6 +47,7 @@ function CreatePointModal({ open, onOpenChange }: CreatePointModalProps) {
 			});
 			reset();
 			onOpenChange(false);
+			updateData();
 		} catch (error: unknown) {
 			let errorMsg = "Falha ao cadastrar ponto";
 			if (error instanceof Error) {

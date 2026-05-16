@@ -5,6 +5,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Home, LogOut, Plus, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { getCurrentMonthTimeClocks } from "@/services/electronicTimeClockService";
 import { CreatePointModal } from "../components/create-point-modal";
 import { useAuthGuard } from "../hooks/use-session";
@@ -17,10 +18,37 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardComponent() {
 	const { session, isPending } = useAuthGuard();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [calendarEvents, setCalendarEvents] = useState<
+		Array<{
+			id: string;
+			title: string;
+			start: string;
+			end: string;
+		}>
+	>([]);
+
+	async function fetchTimeClocks() {
+		try {
+			const data = await getCurrentMonthTimeClocks();
+			const events = Array.isArray(data)
+				? data.map((item: Record<string, string | Date>) => ({
+						id: String(item.id),
+						title: String(item.title || "Ponto"),
+						start: String(item.clockIn),
+						end: String(item.clockOut),
+					}))
+				: [];
+			setCalendarEvents(events);
+		} catch (error) {
+			toast.error("Erro ao buscar pontos.", {
+				autoClose: 3000,
+				closeOnClick: true,
+			});
+		}
+	}
 
 	useEffect(() => {
-		const response = getCurrentMonthTimeClocks();
-		console.log("Olha o response =>", response);
+		fetchTimeClocks();
 	}, []);
 
 	if (isPending) {
@@ -122,12 +150,17 @@ function DashboardComponent() {
 								week: "Semana",
 								day: "Dia",
 							}}
+							events={calendarEvents}
 						/>
 					</div>
 				</main>
 			</div>
 
-			<CreatePointModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+			<CreatePointModal
+				open={isModalOpen}
+				onOpenChange={setIsModalOpen}
+				updateData={fetchTimeClocks}
+			/>
 		</div>
 	);
 }
