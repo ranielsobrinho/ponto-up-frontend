@@ -6,11 +6,11 @@ export interface User {
 	name: string;
 	email: string;
 	image?: string;
+	expiresAt: string;
 }
 
 export interface Session {
 	user: User;
-	expiresAt: string;
 }
 
 function getStoredSession(): Session | null {
@@ -60,14 +60,15 @@ export async function customSignIn(email: string, password: string) {
 	const now = new Date();
 	now.setHours(now.getHours() + 1);
 
-	// FIX: error on setting session data
 	const session: Session = {
 		user: {
 			name: data.user?.name || email.split("@")[0],
 			email: data.user?.email || email,
+			expiresAt: data.session?.expiresAt || now,
 		},
-		expiresAt: data.session?.expiresAt || now,
 	};
+
+	console.log("Olha a session =>", session);
 
 	setStoredSession(session);
 	return data;
@@ -98,8 +99,8 @@ export async function customSignUp(
 		user: {
 			name: data.user?.name || name,
 			email: data.user?.email || email,
+			expiresAt: data.expiresAt,
 		},
-		expiresAt: data.expiresAt,
 	};
 
 	setStoredSession(session);
