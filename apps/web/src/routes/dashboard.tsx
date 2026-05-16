@@ -88,7 +88,7 @@ function DashboardComponent() {
 							style={{ backgroundColor: "#2c77f9" }}
 						>
 							<Plus size={18} />
-							<p>Criar ponto</p>
+							Criar ponto
 						</button>
 					</div>
 
