@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { authClient } from "../lib/auth-client";
+import { customSignIn } from "../lib/auth-client";
+import { getAuthErrorMessage } from "../lib/auth-errors";
 
 export const Route = createFileRoute("/signin")({
 	component: SignInComponent,
@@ -13,6 +14,7 @@ type SignInData = {
 };
 
 function SignInComponent() {
+	const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
@@ -29,17 +31,17 @@ function SignInComponent() {
 			return;
 		}
 
-		try {
-			await authClient.signIn.email({
-				email: data.email,
-				password: data.password,
+		await customSignIn(data.email, data.password)
+			.then(() => {
+				toast.success("Login realizado com sucesso!", {
+					autoClose: 3000,
+					closeOnClick: true,
+				});
+				navigate({ to: "/dashboard" });
+			})
+			.catch((error) => {
+				toast.error(getAuthErrorMessage(error));
 			});
-			toast.success("Login realizado com sucesso!");
-		} catch (error) {
-			toast.error(
-				error instanceof Error ? error.message : "Erro ao realizar login",
-			);
-		}
 	}
 
 	return (

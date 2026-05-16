@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { authClient } from "../lib/auth-client";
+import { customSignUp } from "../lib/auth-client";
+import { getAuthErrorMessage } from "../lib/auth-errors";
 
 export const Route = createFileRoute("/signup")({
 	component: SignUpComponent,
@@ -15,6 +16,7 @@ type dataSubmit = {
 };
 
 function SignUpComponent() {
+	const navigate = useNavigate();
 	const {
 		register,
 		handleSubmit,
@@ -27,18 +29,17 @@ function SignUpComponent() {
 			return;
 		}
 
-		try {
-			await authClient.signUp.email({
-				email: data.email,
-				password: data.password,
-				name: data.name,
+		await customSignUp(data.name, data.email, data.password)
+			.then(() => {
+				toast.success("Cadastro realizado com sucesso!", {
+					autoClose: 3000,
+					closeOnClick: true,
+				});
+				navigate({ to: "/dashboard" });
+			})
+			.catch((error) => {
+				toast.error(getAuthErrorMessage(error));
 			});
-			toast.success("Cadastro realizado com sucesso!");
-		} catch (error) {
-			toast.error(
-				error instanceof Error ? error.message : "Erro ao realizar cadastro",
-			);
-		}
 	}
 
 	return (

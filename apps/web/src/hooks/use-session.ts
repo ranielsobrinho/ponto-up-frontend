@@ -1,16 +1,47 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { authClient } from "../lib/auth-client";
+import { useEffect, useState } from "react";
+
+export interface User {
+	id: string;
+	name: string;
+	email: string;
+	image?: string;
+}
+
+export interface Session {
+	user: User;
+	expiresAt: string;
+}
+
+function getStoredSession(): Session | null {
+	const stored = localStorage.getItem("session");
+	if (!stored) return null;
+
+	const session: Session = JSON.parse(stored);
+	if (new Date(session.expiresAt) < new Date()) {
+		localStorage.removeItem("session");
+		return null;
+	}
+
+	return session;
+}
 
 export function useAuthGuard() {
-	const { data: session, isPending } = authClient.useSession();
+	const [session, setSession] = useState<Session | null>(() =>
+		getStoredSession(),
+	);
+	const [isPending, setIsPending] = useState(true);
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (!isPending && !session) {
+		const currentSession = getStoredSession();
+		setSession(currentSession);
+		setIsPending(false);
+
+		if (!currentSession) {
 			navigate({ to: "/signin", replace: true });
 		}
-	}, [session, isPending, navigate]);
+	}, [navigate]);
 
 	return { session, isPending };
 }
