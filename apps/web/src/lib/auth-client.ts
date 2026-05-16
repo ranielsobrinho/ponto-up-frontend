@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL;
+const TOKEN_KEY = "auth_token";
 
 export interface User {
 	name: string;
@@ -11,19 +12,36 @@ export interface User {
 
 export interface Session {
 	user: User;
+	token: string;
 }
 
 function getStoredSession(): Session | null {
 	const stored = localStorage.getItem("session");
-	return stored ? JSON.parse(stored) : null;
+	if (!stored) return null;
+
+	const token = localStorage.getItem(TOKEN_KEY);
+	if (!token) return null;
+
+	try {
+		const parsed = JSON.parse(stored);
+		return { ...parsed, token };
+	} catch {
+		return null;
+	}
 }
 
 function setStoredSession(session: Session | null): void {
 	if (session) {
-		localStorage.setItem("session", JSON.stringify(session));
+		localStorage.setItem("session", JSON.stringify({ user: session.user }));
+		localStorage.setItem(TOKEN_KEY, session.token);
 	} else {
 		localStorage.removeItem("session");
+		localStorage.removeItem(TOKEN_KEY);
 	}
+}
+
+export function getAuthToken(): string | null {
+	return localStorage.getItem(TOKEN_KEY);
 }
 
 export function useSession() {
@@ -56,7 +74,6 @@ export async function customSignIn(email: string, password: string) {
 	}
 
 	const data = await response.json();
-	console.log("Olha o data =>", data);
 	const now = new Date();
 	now.setHours(now.getHours() + 1);
 
@@ -64,11 +81,10 @@ export async function customSignIn(email: string, password: string) {
 		user: {
 			name: data.user?.name || email.split("@")[0],
 			email: data.user?.email || email,
-			expiresAt: data.session?.expiresAt || now,
+			expiresAt: data.session?.expiresAt || now.toISOString(),
 		},
+		token: data.token,
 	};
-
-	console.log("Olha a session =>", session);
 
 	setStoredSession(session);
 	return data;
@@ -101,6 +117,7 @@ export async function customSignUp(
 			email: data.user?.email || email,
 			expiresAt: data.expiresAt,
 		},
+		token: data.token,
 	};
 
 	setStoredSession(session);

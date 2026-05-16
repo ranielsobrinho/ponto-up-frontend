@@ -4,6 +4,9 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Home, LogOut, Plus, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getCurrentMonthTimeClocks } from "@/services/electronicTimeClockService";
+import { CreatePointModal } from "../components/create-point-modal";
 import { useAuthGuard } from "../hooks/use-session";
 import { customSignOut } from "../lib/auth-client";
 
@@ -13,6 +16,12 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardComponent() {
 	const { session, isPending } = useAuthGuard();
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	useEffect(() => {
+		const response = getCurrentMonthTimeClocks();
+		console.log("Olha o response =>", response);
+	}, []);
 
 	if (isPending) {
 		return (
@@ -84,8 +93,9 @@ function DashboardComponent() {
 					<div className="mb-6">
 						<button
 							type="button"
-							className="flex cursor-pointer items-center justify-center rounded-md px-6 py-3 font-medium text-white transition-colors hover:bg-blue-600"
+							className="flex cursor-pointer items-center justify-center gap-2 rounded-md px-6 py-3 font-medium text-white transition-colors hover:bg-blue-600"
 							style={{ backgroundColor: "#2c77f9" }}
+							onClick={() => setIsModalOpen(true)}
 						>
 							<Plus size={18} />
 							Criar ponto
@@ -116,6 +126,8 @@ function DashboardComponent() {
 					</div>
 				</main>
 			</div>
+
+			<CreatePointModal open={isModalOpen} onOpenChange={setIsModalOpen} />
 		</div>
 	);
 }
