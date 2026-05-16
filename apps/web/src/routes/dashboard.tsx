@@ -3,7 +3,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Home, LogOut, Settings } from "lucide-react";
+import { Home, LogOut, Plus, Settings } from "lucide-react";
 import { useAuthGuard } from "../hooks/use-session";
 import { customSignOut } from "../lib/auth-client";
 
@@ -84,10 +84,11 @@ function DashboardComponent() {
 					<div className="mb-6">
 						<button
 							type="button"
-							className="cursor-pointer rounded-md px-6 py-3 font-medium text-white transition-colors hover:bg-blue-600"
+							className="flex cursor-pointer items-center justify-center rounded-md px-6 py-3 font-medium text-white transition-colors hover:bg-blue-600"
 							style={{ backgroundColor: "#2c77f9" }}
 						>
-							Criar ponto
+							<Plus size={18} />
+							<p>Criar ponto</p>
 						</button>
 					</div>
 
