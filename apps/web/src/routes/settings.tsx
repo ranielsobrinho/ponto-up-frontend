@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
+import { customSignOut } from "@/lib/auth-client";
 import { useAuthGuard } from "../hooks/use-session";
 
 export const Route = createFileRoute("/settings")({
@@ -20,6 +22,10 @@ function SettingsComponent() {
 		return null;
 	}
 
+	const handleSignOut = () => {
+		customSignOut();
+	};
+
 	return (
 		<div className="flex h-screen flex-col">
 			<header
@@ -34,6 +40,15 @@ function SettingsComponent() {
 						Bem-vindo(a) {session.user.name}
 					</span>
 				</div>
+				<button
+					type="button"
+					onClick={handleSignOut}
+					className="flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 font-medium text-white transition-colors hover:bg-red-600"
+					style={{ backgroundColor: "#e53e3e" }}
+				>
+					<LogOut size={18} />
+					Sair
+				</button>
 			</header>
 
 			<div className="flex flex-1 overflow-hidden">
