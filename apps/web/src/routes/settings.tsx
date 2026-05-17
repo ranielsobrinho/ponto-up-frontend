@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useAuthGuard } from "../hooks/use-session";
 
-export const Route = createFileRoute("/dashboard/settings")({
+export const Route = createFileRoute("/settings")({
 	component: SettingsComponent,
 });
 
