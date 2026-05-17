@@ -83,7 +83,7 @@ export async function customSignIn(email: string, password: string) {
 			name: data.user?.name || email.split("@")[0],
 			email: data.user?.email || email,
 			expiresAt: data.session?.expiresAt || now.toISOString(),
-			role: data.users?.role || "user",
+			role: data.user?.role || "user",
 		},
 		token: data.token,
 	};
@@ -118,7 +118,7 @@ export async function customSignUp(
 			name: data.user?.name || name,
 			email: data.user?.email || email,
 			expiresAt: data.expiresAt,
-			role: data.users?.role || "user",
+			role: data.user?.role || "user",
 		},
 		token: data.token,
 	};
