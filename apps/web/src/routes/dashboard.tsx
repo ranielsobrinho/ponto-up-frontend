@@ -2,8 +2,14 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@ponto-up-frontend/ui/components/dialog";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Home, LogOut, Plus, Settings } from "lucide-react";
+import { Home, LogOut, Pencil, Plus, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getCurrentMonthTimeClocks } from "@/services/electronicTimeClockService";
@@ -18,14 +24,42 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardComponent() {
 	const { session, isPending } = useAuthGuard();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [selectedDate, setSelectedDate] = useState<string | null>(null);
+	const [showDayModal, setShowDayModal] = useState(false);
+	const [editingEvent, setEditingEvent] = useState<{
+		id: string;
+		title: string;
+		clockIn: string;
+		clockOut: string;
+		observation: string;
+		date: string;
+	} | null>(null);
 	const [calendarEvents, setCalendarEvents] = useState<
 		Array<{
 			id: string;
 			title: string;
 			start: string;
 			end: string;
+			observation?: string;
 		}>
 	>([]);
+
+	function handleDateClick(info: { dateStr: string }) {
+		setSelectedDate(info.dateStr);
+		setShowDayModal(true);
+	}
+
+	const dayEvents = selectedDate
+		? calendarEvents.filter((event) => event.start.startsWith(selectedDate))
+		: [];
+
+	function formatTime(dateString: string) {
+		const date = new Date(dateString);
+		return date.toLocaleTimeString("pt-BR", {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+	}
 
 	async function fetchTimeClocks() {
 		try {
@@ -36,10 +70,13 @@ function DashboardComponent() {
 						title: String(item.title || "Ponto"),
 						start: String(item.clockIn),
 						end: String(item.clockOut),
+						extendedProps: {
+							observation: String(item.observations || ""),
+						},
 					}))
 				: [];
 			setCalendarEvents(events);
-		} catch (error) {
+		} catch (_error) {
 			toast.error("Erro ao buscar pontos.", {
 				autoClose: 3000,
 				closeOnClick: true,
@@ -104,7 +141,7 @@ function DashboardComponent() {
 							Início
 						</Link>
 						<Link
-							to="/dashboard/settings"
+							to="/settings"
 							className="flex items-center gap-3 rounded-md px-4 py-3 text-white transition-colors hover:bg-blue-600"
 							style={{ backgroundColor: "#2a374b" }}
 						>
@@ -151,6 +188,30 @@ function DashboardComponent() {
 								day: "Dia",
 							}}
 							events={calendarEvents}
+							dateClick={handleDateClick}
+							eventClick={(info) => {
+								const event = info.event;
+								const clockInTime = formatTime(event.start!.toISOString());
+								const clockOutTime = event.end
+									? formatTime(event.end.toISOString())
+									: "";
+								const originalDate = event.start!.toISOString().split("T")[0];
+								const extProps = event.extendedProps as {
+									observation?: string;
+								} | null;
+								setEditingEvent({
+									id: event.id,
+									title: event.title || "",
+									clockIn: clockInTime,
+									clockOut: clockOutTime,
+									observation: extProps?.observation || "",
+									date: originalDate,
+								});
+								setIsModalOpen(true);
+							}}
+							dayCellDidMount={(arg) => {
+								arg.el.style.cursor = "pointer";
+							}}
 						/>
 					</div>
 				</main>
@@ -160,7 +221,108 @@ function DashboardComponent() {
 				open={isModalOpen}
 				onOpenChange={setIsModalOpen}
 				updateData={fetchTimeClocks}
+				initialData={editingEvent}
+				onClose={() => setEditingEvent(null)}
 			/>
+
+			<Dialog open={showDayModal} onOpenChange={setShowDayModal}>
+				<DialogContent className="min-w-lg">
+					<DialogHeader>
+						<DialogTitle>
+							<h1 className="font-bold text-2xl" style={{ color: "#36b0f8" }}>
+								{selectedDate
+									? new Date(selectedDate).toLocaleDateString("pt-BR", {
+											weekday: "long",
+											year: "numeric",
+											month: "long",
+											day: "numeric",
+										})
+									: "Detalhes do dia"}
+							</h1>
+						</DialogTitle>
+					</DialogHeader>
+
+					<div className="mt-2 flex flex-col gap-3">
+						{dayEvents.length === 0 ? (
+							<p style={{ color: "#9ca3af" }}>
+								Nenhum registro de ponto neste dia.
+							</p>
+						) : (
+							dayEvents.map((event) => (
+								<div
+									key={event.id}
+									className="rounded-md p-4"
+									style={{ backgroundColor: "#2a374b" }}
+								>
+									<div className="flex items-center justify-between">
+										<span
+											className="font-semibold"
+											style={{ color: "#e5e7eb" }}
+										>
+											{event.title}
+										</span>
+										<button
+											type="button"
+											onClick={() => {
+												const clockInTime = formatTime(event.start);
+												const clockOutTime = event.end
+													? formatTime(event.end)
+													: "";
+												const originalDate = event.start.split("T")[0];
+												setEditingEvent({
+													id: event.id,
+													title: event.title,
+													clockIn: clockInTime,
+													clockOut: clockOutTime,
+													observation: event.observation || "",
+													date: originalDate,
+												});
+												setIsModalOpen(true);
+												setShowDayModal(false);
+											}}
+											className="cursor-pointer rounded-md p-1 transition-colors hover:bg-blue-600"
+											style={{ color: "#36b0f8" }}
+										>
+											<Pencil size={16} />
+										</button>
+									</div>
+									<div
+										className="mt-2 flex gap-4 text-sm"
+										style={{ color: "#9ca3af" }}
+									>
+										<div>
+											<span className="font-medium">Entrada: </span>
+											<span style={{ color: "#36b0f8" }}>
+												{formatTime(event.start)}
+											</span>
+										</div>
+										<div>
+											<span className="font-medium">Saída: </span>
+											<span style={{ color: "#36b0f8" }}>
+												{event.end ? formatTime(event.end) : "-"}
+											</span>
+										</div>
+									</div>
+									{event.observation && (
+										<p className="mt-2 text-sm" style={{ color: "#9ca3af" }}>
+											{event.observation}
+										</p>
+									)}
+								</div>
+							))
+						)}
+					</div>
+
+					<button
+						type="button"
+						className="absolute top-4 right-4 cursor-pointer rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+						style={{ color: "#9ca3af" }}
+						onClick={() => setShowDayModal(false)}
+					>
+						<X size={18} />
+					</button>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

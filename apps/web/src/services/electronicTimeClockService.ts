@@ -14,6 +14,7 @@ export type UpdatePointFormData = {
 	clockOut?: string;
 	title?: string;
 	observation?: string;
+	date?: string;
 };
 
 function getAuthHeader() {
@@ -149,18 +150,26 @@ export async function getTimeClockById(id: string) {
 	return response.json();
 }
 
+function normalizeTime(time: string): string {
+	const parts = time.split(":");
+	if (parts.length === 2) {
+		return `${parts[0]}:${parts[1]}:00`;
+	}
+	return time;
+}
+
 export async function updateTimeClock(id: string, data: UpdatePointFormData) {
 	const payload: Record<string, unknown> = {};
 
 	if (data.title !== undefined) payload.title = data.title;
 	if (data.observation !== undefined) payload.observations = data.observation;
 	if (data.clockIn !== undefined) {
-		const datePart = new Date().toISOString().split("T")[0];
-		payload.clockIn = `${datePart}T${data.clockIn}`;
+		const datePart = data.date || new Date().toISOString().split("T")[0];
+		payload.clockIn = `${datePart}T${normalizeTime(data.clockIn)}`;
 	}
 	if (data.clockOut !== undefined) {
-		const datePart = new Date().toISOString().split("T")[0];
-		payload.clockOut = `${datePart}T${data.clockOut}`;
+		const datePart = data.date || new Date().toISOString().split("T")[0];
+		payload.clockOut = `${datePart}T${normalizeTime(data.clockOut)}`;
 	}
 
 	const response = await fetch(`${API_BASE_URL}/api/time-clock/${id}`, {

@@ -9,26 +9,39 @@ import {
 } from "@ponto-up-frontend/ui/components/dialog";
 import { Textarea } from "@ponto-up-frontend/ui/components/textarea";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import {
 	type CreatePointFormData,
 	createClockIn,
+	updateTimeClock,
 } from "@/services/electronicTimeClockService";
 
 interface CreatePointModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	updateData: () => void;
+	initialData?: {
+		id: string;
+		title: string;
+		clockIn: string;
+		clockOut: string;
+		observation: string;
+		date: string;
+	} | null;
+	onClose?: () => void;
 }
 
 function CreatePointModal({
 	open,
 	onOpenChange,
 	updateData,
+	initialData,
+	onClose,
 }: CreatePointModalProps) {
 	const [isLoading, setIsLoading] = useState(false);
+	const [isUpdate, setIsUpdate] = useState(false);
 
 	const {
 		register,
@@ -37,19 +50,55 @@ function CreatePointModal({
 		formState: { errors },
 	} = useForm<CreatePointFormData>();
 
+	useEffect(() => {
+		if (open) {
+			if (initialData) {
+				const [clockInHour, clockInMin] = initialData.clockIn.split(":");
+				const [clockOutHour, clockOutMin] = initialData.clockOut.split(":");
+				setIsUpdate(true);
+				reset({
+					title: initialData.title,
+					clockIn: `${clockInHour}:${clockInMin}`,
+					clockOut: `${clockOutHour}:${clockOutMin}`,
+					observation: initialData.observation,
+				});
+			} else {
+				reset({
+					title: "",
+					clockIn: "",
+					clockOut: "",
+					observation: "",
+				});
+			}
+		}
+	}, [open, initialData, reset]);
+
 	async function onSubmit(data: CreatePointFormData) {
 		setIsLoading(true);
 		try {
-			await createClockIn(data);
-			toast.success("Ponto cadastrado com sucesso!", {
-				autoClose: 3000,
-				closeOnClick: true,
-			});
+			if (isUpdate) {
+				await updateTimeClock(initialData!.id, {
+					...data,
+					date: initialData!.date,
+				});
+				toast.success("Ponto atualizado com sucesso!", {
+					autoClose: 3000,
+					closeOnClick: true,
+				});
+			} else {
+				await createClockIn(data);
+				toast.success("Ponto cadastrado com sucesso!", {
+					autoClose: 3000,
+					closeOnClick: true,
+				});
+			}
 			reset();
 			onOpenChange(false);
 			updateData();
 		} catch (error: unknown) {
-			let errorMsg = "Falha ao cadastrar ponto";
+			let errorMsg = isUpdate
+				? "Falha ao atualizar ponto"
+				: "Falha ao cadastrar ponto";
 			if (error instanceof Error) {
 				errorMsg =
 					(error as Error & { response?: { message?: string } })?.response
@@ -67,6 +116,7 @@ function CreatePointModal({
 	function handleClose() {
 		reset();
 		onOpenChange(false);
+		onClose?.();
 	}
 
 	return (
@@ -75,7 +125,7 @@ function CreatePointModal({
 				<DialogHeader>
 					<DialogTitle>
 						<h1 className="font-bold text-2xl" style={{ color: "#36b0f8" }}>
-							Adicionar Ponto
+							{initialData ? "Editar Ponto" : "Adicionar Ponto"}
 						</h1>
 					</DialogTitle>
 				</DialogHeader>
@@ -184,7 +234,11 @@ function CreatePointModal({
 									cursor: isLoading ? "not-allowed" : "pointer",
 								}}
 							>
-								{isLoading ? "Salvando..." : "Salvar"}
+								{isLoading
+									? "Salvando..."
+									: initialData
+										? "Atualizar"
+										: "Salvar"}
 							</Button>
 							<Button
 								type="button"
