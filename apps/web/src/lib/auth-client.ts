@@ -4,6 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_SERVER_URL;
 const TOKEN_KEY = "auth_token";
 
 export interface User {
+	id: string;
 	name: string;
 	email: string;
 	image?: string;
@@ -45,6 +46,10 @@ export function getAuthToken(): string | null {
 	return localStorage.getItem(TOKEN_KEY);
 }
 
+export function isAdmin(session: { user?: { role?: string } } | null): boolean {
+	return session?.user?.role === "admin";
+}
+
 export function useSession() {
 	const [session, setSessionState] = useState<Session | null>(() =>
 		getStoredSession(),
@@ -69,6 +74,8 @@ export async function customSignIn(email: string, password: string) {
 		body: JSON.stringify({ email, password }),
 	});
 
+	console.log("Olha só =>", response);
+
 	if (!response.ok) {
 		const error = await response.json().catch(() => ({}));
 		throw new Error(error.message || "Erro ao realizar login");
@@ -80,6 +87,7 @@ export async function customSignIn(email: string, password: string) {
 
 	const session: Session = {
 		user: {
+			id: data.user?.id,
 			name: data.user?.name || email.split("@")[0],
 			email: data.user?.email || email,
 			expiresAt: data.session?.expiresAt || now.toISOString(),
@@ -115,6 +123,7 @@ export async function customSignUp(
 
 	const session: Session = {
 		user: {
+			id: data.user?.id,
 			name: data.user?.name || name,
 			email: data.user?.email || email,
 			expiresAt: data.expiresAt,

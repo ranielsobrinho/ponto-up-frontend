@@ -10,7 +10,7 @@ import {
 } from "@ponto-up-frontend/ui/components/dialog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Home, LogOut, Pencil, Plus, Settings, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getCurrentMonthTimeClocks } from "@/services/electronicTimeClockService";
 import { CreatePointModal } from "../components/create-point-modal";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardComponent() {
 	const { session, isPending } = useAuthGuard();
+
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);
 	const [showDayModal, setShowDayModal] = useState(false);
@@ -61,7 +62,7 @@ function DashboardComponent() {
 		});
 	}
 
-	async function fetchTimeClocks() {
+	const fetchTimeClocks = useCallback(async () => {
 		try {
 			const data = await getCurrentMonthTimeClocks();
 			const events = Array.isArray(data)
@@ -82,11 +83,11 @@ function DashboardComponent() {
 				closeOnClick: true,
 			});
 		}
-	}
+	}, []);
 
 	useEffect(() => {
 		fetchTimeClocks();
-	}, []);
+	}, [fetchTimeClocks]);
 
 	if (isPending) {
 		return (
@@ -191,11 +192,14 @@ function DashboardComponent() {
 							dateClick={handleDateClick}
 							eventClick={(info) => {
 								const event = info.event;
-								const clockInTime = formatTime(event.start!.toISOString());
+								const clockInTime = formatTime(
+									event.start?.toISOString() ?? "",
+								);
 								const clockOutTime = event.end
 									? formatTime(event.end.toISOString())
 									: "";
-								const originalDate = event.start!.toISOString().split("T")[0];
+								const originalDate =
+									event.start?.toISOString().split("T")[0] ?? "";
 								const extProps = event.extendedProps as {
 									observation?: string;
 								} | null;

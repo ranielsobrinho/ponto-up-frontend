@@ -76,10 +76,10 @@ function CreatePointModal({
 	async function onSubmit(data: CreatePointFormData) {
 		setIsLoading(true);
 		try {
-			if (isUpdate) {
-				await updateTimeClock(initialData!.id, {
+			if (isUpdate && initialData) {
+				await updateTimeClock(initialData.id, {
 					...data,
-					date: initialData!.date,
+					date: initialData.date,
 				});
 				toast.success("Ponto atualizado com sucesso!", {
 					autoClose: 3000,

@@ -1,4 +1,5 @@
 import { getAuthToken } from "@/lib/auth-client";
+import { getAllUsers } from "./userService";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL;
 
@@ -191,4 +192,112 @@ export async function updateTimeClock(id: string, data: UpdatePointFormData) {
 	}
 
 	return response.json();
+}
+
+export interface UserStatistics {
+	userId: string;
+	userName: string;
+	monthHours: number;
+	weekHours: number;
+	missingHours: number;
+	hasClockedInToday: boolean;
+}
+
+function getWeekRange() {
+	const now = new Date();
+	const dayOfWeek = now.getDay();
+	const monday = new Date(now);
+	monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+	monday.setHours(0, 0, 0, 0);
+
+	const sunday = new Date(monday);
+	sunday.setDate(monday.getDate() + 6);
+
+	return {
+		startDate: monday.toISOString().split("T")[0],
+		endDate: sunday.toISOString().split("T")[0],
+	};
+}
+
+export function calculateWorkedHours(
+	clockIn: string,
+	clockOut: string,
+): number {
+	if (!clockIn || !clockOut) return 0;
+	const start = new Date(clockIn);
+	const end = new Date(clockOut);
+	const diff = end.getTime() - start.getTime();
+	return diff / (1000 * 60 * 60);
+}
+
+function getExpectedMonthlyHours(): number {
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = now.getMonth();
+	const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+	const workDays = Array.from({ length: daysInMonth }, (_, i) => {
+		const day = new Date(year, month, i + 1).getDay();
+		return day !== 0 && day !== 6;
+	}).filter(Boolean).length;
+
+	return workDays * 8;
+}
+
+export async function getAllUsersStatistics(): Promise<UserStatistics[]> {
+	const users = await getAllUsers();
+	const { startDate, endDate } = getDateRangeForCurrentMonth();
+	const weekRange = getWeekRange();
+
+	const monthClocks = await getTimeClocksByDateRange(startDate, endDate);
+	const weekClocks = await getTimeClocksByDateRange(
+		weekRange.startDate,
+		weekRange.endDate,
+	);
+
+	const today = new Date().toISOString().split("T")[0];
+
+	return users.map((user: { id: string; name: string }) => {
+		const userMonthClocks = (Array.isArray(monthClocks) ? monthClocks : [])
+			.filter(
+				(c: Record<string, string>) =>
+					c.userId === user.id || c.user_id === user.id,
+			)
+			.filter((c: Record<string, string>) => c.clockIn && c.clockOut);
+
+		const userWeekClocks = (Array.isArray(weekClocks) ? weekClocks : [])
+			.filter(
+				(c: Record<string, string>) =>
+					c.userId === user.id || c.user_id === user.id,
+			)
+			.filter((c: Record<string, string>) => c.clockIn && c.clockOut);
+
+		const monthHours = userMonthClocks.reduce(
+			(total: number, c: Record<string, string>) =>
+				total + calculateWorkedHours(c.clockIn, c.clockOut),
+			0,
+		);
+
+		const weekHours = userWeekClocks.reduce(
+			(total: number, c: Record<string, string>) =>
+				total + calculateWorkedHours(c.clockIn, c.clockOut),
+			0,
+		);
+
+		const hasClockedInToday = userMonthClocks.some(
+			(c: Record<string, string>) => c.clockIn.startsWith(today),
+		);
+
+		const expectedMonthHours = getExpectedMonthlyHours();
+		const missingHours = Math.max(0, expectedMonthHours - monthHours);
+
+		return {
+			userId: user.id,
+			userName: user.name,
+			monthHours: Math.round(monthHours * 10) / 10,
+			weekHours: Math.round(weekHours * 10) / 10,
+			missingHours: Math.round(missingHours * 10) / 10,
+			hasClockedInToday,
+		};
+	});
 }

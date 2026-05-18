@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LogOut, User } from "lucide-react";
-import { customSignOut } from "@/lib/auth-client";
+import { LogOut, User, Users } from "lucide-react";
+import { customSignOut, isAdmin } from "@/lib/auth-client";
 import { useAuthGuard } from "../hooks/use-session";
 
 export const Route = createFileRoute("/settings")({
@@ -20,13 +20,23 @@ function SettingsComponent() {
 
 	const configOptions: ConfigOption[] = [
 		{
-			id: "user",
+			id: "profile",
 			title: "Dados do usuário",
 			description: "Gerencie suas informações pessoais",
 			icon: <User size={24} />,
-			link: "/user-settings",
+			link: "/user",
 		},
 	];
+
+	if (isAdmin(session)) {
+		configOptions.push({
+			id: "users",
+			title: "Gerenciar Usuários",
+			description: "Visualize e gerencie usuários do sistema",
+			icon: <Users size={24} />,
+			link: "/users",
+		});
+	}
 
 	if (isPending) {
 		return (

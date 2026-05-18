@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { customSignIn } from "../lib/auth-client";
@@ -15,6 +16,7 @@ type SignInData = {
 
 function SignInComponent() {
 	const navigate = useNavigate();
+	const [isLoading, setIsLoading] = useState(false);
 	const {
 		register,
 		handleSubmit,
@@ -31,16 +33,29 @@ function SignInComponent() {
 			return;
 		}
 
+		setIsLoading(true);
 		await customSignIn(data.email, data.password)
-			.then(() => {
+			.then((res) => {
+				console.log("Olha o res =>", res);
+				const { user } = res;
 				toast.success("Login realizado com sucesso!", {
 					autoClose: 3000,
 					closeOnClick: true,
 				});
-				navigate({ to: "/dashboard" });
+
+				if (user.role === "admin") {
+					console.log("O usuário é admin !");
+					navigate({ to: "/admin", replace: true });
+				} else {
+					console.log("O usuário não é admin !");
+					navigate({ to: "/dashboard" });
+				}
 			})
 			.catch((error) => {
 				toast.error(getAuthErrorMessage(error));
+			})
+			.finally(() => {
+				setIsLoading(false);
 			});
 	}
 
@@ -96,10 +111,11 @@ function SignInComponent() {
 					</div>
 					<button
 						type="submit"
-						className="w-full cursor-pointer rounded-md px-4 py-2 font-medium text-white"
-						style={{ backgroundColor: "#2c77f9" }}
+						className="w-full cursor-pointer rounded-md px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+						style={{ backgroundColor: isLoading ? "#6b7280" : "#2c77f9" }}
+						disabled={isLoading}
 					>
-						Entrar
+						{isLoading ? "Entrando..." : "Entrar"}
 					</button>
 				</form>
 				<Link

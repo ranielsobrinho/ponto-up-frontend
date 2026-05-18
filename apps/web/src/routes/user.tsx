@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { customSignOut } from "@/lib/auth-client";
-import { updateUserProfile } from "@/services/userService";
+import { updateUser } from "@/services/userService";
 import { UpdatePasswordModal } from "../components/update-password-modal";
 import { useAuthGuard } from "../hooks/use-session";
 
-export const Route = createFileRoute("/user-settings")({
+export const Route = createFileRoute("/user")({
 	component: UserSettingsComponent,
 });
 
@@ -53,7 +53,16 @@ function UserSettingsComponent() {
 	async function onSubmit(data: ProfileFormData) {
 		setIsLoading(true);
 		try {
-			await updateUserProfile({ name: data.name, email: data.email });
+			const userId = session?.user.id;
+			if (!userId) {
+				toast.error("Não foi possível encontrar o usuário", {
+					autoClose: 3000,
+					closeOnClick: true,
+				});
+				return;
+			}
+
+			await updateUser(userId, { name: data.name, email: data.email });
 			toast.success("Perfil atualizado com sucesso!", {
 				autoClose: 3000,
 				closeOnClick: true,
