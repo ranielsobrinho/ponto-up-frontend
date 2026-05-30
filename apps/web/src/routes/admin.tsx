@@ -134,7 +134,7 @@ function AdminDashboardComponent() {
 						<p style={{ color: "#9ca3af" }}>Carregando...</p>
 					) : stats ? (
 						<>
-							<div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+							<div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-3">
 								<div
 									className="rounded-lg p-4"
 									style={{ backgroundColor: "#222b40" }}
@@ -266,7 +266,7 @@ function AdminDashboardComponent() {
 								</div>
 							</div>
 
-							<div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+							<div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
 								<div
 									className="rounded-lg p-6"
 									style={{ backgroundColor: "#222b40" }}
