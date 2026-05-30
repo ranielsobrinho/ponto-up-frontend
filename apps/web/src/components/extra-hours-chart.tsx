@@ -7,7 +7,7 @@ import {
 	Tooltip,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import type { LateClockIn } from "../services/electronicTimeClockService";
+import type { ExtraHoursMonth } from "../services/electronicTimeClockService";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip);
 
@@ -31,15 +31,15 @@ function formatMonth(isoMonth: string): string {
 	return MONTH_ABBREVIATIONS[Number.parseInt(month, 10) - 1] || isoMonth;
 }
 
-interface LateClockInsChartProps {
-	data: LateClockIn[];
+interface ExtraHoursChartProps {
+	data: ExtraHoursMonth[];
 }
 
-export function LateClockInsChart({ data }: LateClockInsChartProps) {
+export function ExtraHoursChart({ data }: ExtraHoursChartProps) {
 	if (data.length === 0) {
 		return (
 			<p className="text-sm" style={{ color: "#9ca3af" }}>
-				Nenhum atraso registrado nos últimos meses.
+				Nenhum dado de horas extras nos últimos meses.
 			</p>
 		);
 	}
@@ -51,9 +51,9 @@ export function LateClockInsChart({ data }: LateClockInsChartProps) {
 					labels: data.map((d) => formatMonth(d.month)),
 					datasets: [
 						{
-							label: "Atrasos",
-							data: data.map((d) => d.count),
-							backgroundColor: "#f59e0b",
+							label: "Horas Extras",
+							data: data.map((d) => d.extraHours),
+							backgroundColor: "#8b5cf6",
 							borderRadius: 4,
 						},
 					],
@@ -69,6 +69,9 @@ export function LateClockInsChart({ data }: LateClockInsChartProps) {
 							bodyColor: "#e5e7eb",
 							cornerRadius: 8,
 							padding: 8,
+							callbacks: {
+								label: (context) => `${Number(context.parsed).toFixed(1)}h`,
+							},
 						},
 					},
 					scales: {
@@ -79,6 +82,11 @@ export function LateClockInsChart({ data }: LateClockInsChartProps) {
 						y: {
 							ticks: { color: "#9ca3af" },
 							grid: { color: "#374151" },
+							title: {
+								display: true,
+								text: "Horas",
+								color: "#9ca3af",
+							},
 						},
 					},
 				}}

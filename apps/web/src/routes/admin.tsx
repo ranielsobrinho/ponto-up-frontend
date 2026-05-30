@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	AlertCircle,
+	AlertCircleIcon,
 	Calendar,
 	ChartColumnDecreasing,
 	Clock,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { LateClockInsChart } from "../components/late-clockins-chart";
+import { ExtraHoursChart } from "../components/extra-hours-chart";
 import { LatestRegistriesTable } from "../components/latest-registries-table";
 import { OvertimeChart } from "../components/overtime-chart";
 import { WeeklyPresenceChart } from "../components/weekly-presence-chart";
@@ -221,22 +222,51 @@ function AdminDashboardComponent() {
 										</div>
 									</div>
 								</div>
-							</div>
-
-							<div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
 								<div
-									className="rounded-lg p-6"
+									className="rounded-lg p-4"
 									style={{ backgroundColor: "#222b40" }}
 								>
-									<h3
-										className="mb-4 font-semibold"
-										style={{ color: "#e5e7eb" }}
-									>
-										Atrasos por Mês
-									</h3>
-									<LateClockInsChart data={stats.lateClockInsPerMonth} />
+									<div className="flex items-center gap-3">
+										<div
+											className="flex h-10 w-10 items-center justify-center rounded-lg"
+											style={{ backgroundColor: "#8b5cf6" }}
+										>
+											<AlertCircleIcon size={20} style={{ color: "white" }} />
+										</div>
+										<div>
+											<p className="text-sm" style={{ color: "#9ca3af" }}>
+												Atrasos(mês atual)
+											</p>
+											<p className="font-bold text-2xl text-white">
+												{stats.lateClockInsPerMonth}
+											</p>
+										</div>
+									</div>
 								</div>
+								<div
+									className="rounded-lg p-4"
+									style={{ backgroundColor: "#222b40" }}
+								>
+									<div className="flex items-center gap-3">
+										<div
+											className="flex h-10 w-10 items-center justify-center rounded-lg"
+											style={{ backgroundColor: "#8b5cf6" }}
+										>
+											<AlertCircleIcon size={20} style={{ color: "white" }} />
+										</div>
+										<div>
+											<p className="text-sm" style={{ color: "#9ca3af" }}>
+												Horas extras(mês atual)
+											</p>
+											<p className="font-bold text-2xl text-white">
+												{stats.overtimeHoursCurrentMonth}
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
 
+							<div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 								<div
 									className="rounded-lg p-6"
 									style={{ backgroundColor: "#222b40" }}
@@ -248,6 +278,19 @@ function AdminDashboardComponent() {
 										Presença Semanal
 									</h3>
 									<WeeklyPresenceChart data={stats.weeklyPresence} />
+								</div>
+
+								<div
+									className="rounded-lg p-6"
+									style={{ backgroundColor: "#222b40" }}
+								>
+									<h3
+										className="mb-4 font-semibold"
+										style={{ color: "#e5e7eb" }}
+									>
+										Horas Extras (últimos 5 meses)
+									</h3>
+									<ExtraHoursChart data={stats.extraHoursLast5Months} />
 								</div>
 							</div>
 

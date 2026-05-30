@@ -200,11 +200,6 @@ export interface OvertimeSummary {
 	saturdayHours: number;
 }
 
-export interface LateClockIn {
-	month: string;
-	count: number;
-}
-
 export interface WeeklyPresenceItem {
 	dayOfWeek: number;
 	dayName: string;
@@ -232,9 +227,10 @@ export interface DashboardStatistics {
 	activeWorkers: number;
 	clockedInToday: number;
 	notClockedInToday: number;
-	lateClockInsPerMonth: LateClockIn[];
+	lateClockInsPerMonth: number;
 	overtimeSummary: OvertimeSummary;
 	avgHoursPerDay: number;
+	overtimeHoursCurrentMonth: number;
 	weeklyPresence: WeeklyPresenceItem[];
 	extraHoursLast5Months: ExtraHoursMonth[];
 	latestRegistries: LatestRegistry[];

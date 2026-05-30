@@ -38,7 +38,10 @@ function SignUpComponent() {
 				navigate({ to: "/dashboard" });
 			})
 			.catch((error) => {
-				toast.error(getAuthErrorMessage(error));
+				toast.error(getAuthErrorMessage(error), {
+					autoClose: 3000,
+					closeOnClick: true,
+				});
 			});
 	}
 
@@ -68,7 +71,13 @@ function SignUpComponent() {
 						<input
 							type="text"
 							placeholder="Nome"
-							{...register("name", { required: "Nome é obrigatório" })}
+							{...register("name", {
+								required: "Nome é obrigatório",
+								minLength: {
+									value: 8,
+									message: "Nome deve ter no mínimo 3 caracteres",
+								},
+							})}
 							className="w-full rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							style={{ backgroundColor: "#2a374b" }}
 						/>
@@ -82,7 +91,13 @@ function SignUpComponent() {
 						<input
 							type="email"
 							placeholder="Email"
-							{...register("email", { required: "Email é obrigatório" })}
+							{...register("email", {
+								required: "Email é obrigatório",
+								pattern: {
+									value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+									message: "Email inválido",
+								},
+							})}
 							className="w-full rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							style={{ backgroundColor: "#2a374b" }}
 						/>
@@ -96,7 +111,13 @@ function SignUpComponent() {
 						<input
 							type="password"
 							placeholder="Senha"
-							{...register("password", { required: "Senha é obrigatória" })}
+							{...register("password", {
+								required: "Senha é obrigatória",
+								minLength: {
+									value: 8,
+									message: "Senha deve ter no mínimo 8 caracteres",
+								},
+							})}
 							className="w-full rounded-md px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							style={{ backgroundColor: "#2a374b" }}
 						/>

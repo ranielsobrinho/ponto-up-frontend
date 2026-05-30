@@ -1,6 +1,7 @@
 interface BetterAuthError {
 	code?: string;
 	message?: string;
+	details?: any;
 }
 
 export function getAuthErrorMessage(error: unknown): string {
@@ -14,7 +15,7 @@ export function getAuthErrorMessage(error: unknown): string {
 			case "SESSION_NOT_FOUND":
 				return "Sessão expirada, faça login novamente";
 			default:
-				return err.message || "Erro de autenticação";
+				return err.message || err?.details || "Erro de autenticação";
 		}
 	}
 	return "Erro de autenticação";
