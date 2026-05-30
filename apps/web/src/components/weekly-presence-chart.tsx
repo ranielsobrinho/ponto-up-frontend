@@ -1,52 +1,82 @@
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+	BarElement,
+	CategoryScale,
+	Chart as ChartJS,
+	LinearScale,
+	Title,
+	Tooltip,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 import type { WeeklyPresenceItem } from "../services/electronicTimeClockService";
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip);
+
 interface WeeklyPresenceChartProps {
-  data: WeeklyPresenceItem[];
+	data: WeeklyPresenceItem[];
 }
 
 export function WeeklyPresenceChart({ data }: WeeklyPresenceChartProps) {
-  const dayOrder = [
-    "Sunday", "Monday", "Tuesday", "Wednesday",
-    "Thursday", "Friday", "Saturday",
-  ];
+	const dayOrder = [
+		"Sunday",
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday",
+	];
 
-  const sorted = [...data].sort(
-    (a, b) => dayOrder.indexOf(a.dayName) - dayOrder.indexOf(b.dayName),
-  );
+	const sorted = [...data].sort(
+		(a, b) => dayOrder.indexOf(a.dayName) - dayOrder.indexOf(b.dayName),
+	);
 
-  if (data.length === 0) {
-    return (
-      <p className="text-sm" style={{ color: "#9ca3af" }}>
-        Nenhum dado de presença semanal disponível.
-      </p>
-    );
-  }
+	if (data.length === 0) {
+		return (
+			<p className="text-sm" style={{ color: "#9ca3af" }}>
+				Nenhum dado de presença semanal disponível.
+			</p>
+		);
+	}
 
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={sorted}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-        <XAxis dataKey="dayName" stroke="#9ca3af" />
-        <YAxis stroke="#9ca3af" allowDecimals={false} />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "#222b40",
-            border: "none",
-            borderRadius: "8px",
-            color: "#e5e7eb",
-          }}
-        />
-        <Bar dataKey="users" fill="#10b981" radius={[4, 4, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+	return (
+		<div style={{ height: 300 }}>
+			<Bar
+				data={{
+					labels: sorted.map((d) => d.dayName),
+					datasets: [
+						{
+							label: "Usuários",
+							data: sorted.map((d) => d.users),
+							backgroundColor: "#10b981",
+							borderRadius: 4,
+						},
+					],
+				}}
+				options={{
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: { display: false },
+						tooltip: {
+							backgroundColor: "#222b40",
+							titleColor: "#e5e7eb",
+							bodyColor: "#e5e7eb",
+							cornerRadius: 8,
+							padding: 8,
+						},
+					},
+					scales: {
+						x: {
+							ticks: { color: "#9ca3af" },
+							grid: { color: "#374151" },
+						},
+						y: {
+							ticks: { color: "#9ca3af" },
+							grid: { color: "#374151" },
+						},
+					},
+				}}
+			/>
+		</div>
+	);
 }

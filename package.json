@@ -17,6 +17,7 @@
 	"dependencies": {
 		"@ponto-up-frontend/env": "*",
 		"dotenv": "^17.2.2",
+		"react-is": "^19.2.6",
 		"zod": "^4.1.13"
 	},
 	"devDependencies": {

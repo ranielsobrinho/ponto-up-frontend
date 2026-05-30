@@ -1,12 +1,8 @@
-import {
-	Cell,
-	Legend,
-	Pie,
-	PieChart,
-	ResponsiveContainer,
-	Tooltip,
-} from "recharts";
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
 import type { OvertimeSummary } from "../services/electronicTimeClockService";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const COLORS = ["#f59e0b", "#8b5cf6"];
 
@@ -23,36 +19,42 @@ export function OvertimeChart({ data }: OvertimeChartProps) {
 		);
 	}
 
-	const chartData = [
-		{ name: "Dias de Semana (após 17h)", value: data.weekdayAfter17Hours },
-		{ name: "Sábados", value: data.saturdayHours },
-	];
-
 	return (
-		<ResponsiveContainer width="100%" height={300}>
-			<PieChart>
-				<Pie
-					data={chartData}
-					cx="50%"
-					cy="50%"
-					outerRadius={100}
-					dataKey="value"
-					label={({ name, value }) => `${name}: ${value.toFixed(1)}h`}
-				>
-					{chartData.map((entry, index) => (
-						<Cell key={entry.name} fill={COLORS[index]} />
-					))}
-				</Pie>
-				<Tooltip
-					contentStyle={{
-						backgroundColor: "#222b40",
-						border: "none",
-						borderRadius: "8px",
-						color: "#e5e7eb",
-					}}
-				/>
-				<Legend />
-			</PieChart>
-		</ResponsiveContainer>
+		<div style={{ height: 300 }}>
+			<Doughnut
+				data={{
+					labels: ["Dias de Semana (após 17h)", "Sábados"],
+					datasets: [
+						{
+							data: [data.weekdayAfter17Hours, data.saturdayHours],
+							backgroundColor: COLORS,
+							borderWidth: 0,
+						},
+					],
+				}}
+				options={{
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							labels: { color: "#e5e7eb" },
+						},
+						tooltip: {
+							backgroundColor: "#222b40",
+							titleColor: "#e5e7eb",
+							bodyColor: "#e5e7eb",
+							cornerRadius: 8,
+							padding: 8,
+							callbacks: {
+								label: (context) => {
+									const value = context.parsed as number;
+									return `${context.label}: ${value.toFixed(1)}h`;
+								},
+							},
+						},
+					},
+				}}
+			/>
+		</div>
 	);
 }

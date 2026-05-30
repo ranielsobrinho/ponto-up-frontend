@@ -34,6 +34,7 @@ function AdminDashboardComponent() {
 	const fetchStats = useCallback(async () => {
 		try {
 			const data = await getAllUsersStatistics();
+			console.log("Olha os dados =>", data);
 			setStats(data);
 		} catch (_error) {
 			toast.error("Erro ao buscar estatísticas.", {
