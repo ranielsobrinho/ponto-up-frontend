@@ -39,8 +39,8 @@ export function OvertimeChart({ data }: OvertimeChartProps) {
 					dataKey="value"
 					label={({ name, value }) => `${name}: ${value.toFixed(1)}h`}
 				>
-					{chartData.map((_, index) => (
-						<Cell key={`cell-${index}`} fill={COLORS[index]} />
+					{chartData.map((entry, index) => (
+						<Cell key={entry.name} fill={COLORS[index]} />
 					))}
 				</Pie>
 				<Tooltip
