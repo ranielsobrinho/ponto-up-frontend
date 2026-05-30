@@ -9,7 +9,15 @@ import {
 	DialogTitle,
 } from "@ponto-up-frontend/ui/components/dialog";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Home, LogOut, Pencil, Plus, Settings, X } from "lucide-react";
+import {
+	ChartColumnDecreasing,
+	Home,
+	LogOut,
+	Pencil,
+	Plus,
+	Settings,
+	X,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getCurrentMonthTimeClocks } from "@/services/electronicTimeClockService";
@@ -140,6 +148,14 @@ function DashboardComponent() {
 						>
 							<Home size={20} />
 							Início
+						</Link>
+						<Link
+							to="/admin"
+							className="flex items-center gap-3 rounded-md px-4 py-3 text-white transition-colors hover:bg-blue-600"
+							style={{ backgroundColor: "oklch(60.9% 0.126 221.723)" }}
+						>
+							<ChartColumnDecreasing size={20} />
+							Dashboard
 						</Link>
 						<Link
 							to="/settings"

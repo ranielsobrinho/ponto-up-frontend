@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LogOut, User, Users } from "lucide-react";
+import { ChartColumnDecreasing, LogOut, User, Users } from "lucide-react";
 import { customSignOut, isAdmin } from "@/lib/auth-client";
 import { useAuthGuard } from "../hooks/use-session";
 
@@ -88,6 +88,14 @@ function SettingsComponent() {
 							style={{ backgroundColor: "#2a374b" }}
 						>
 							Início
+						</Link>
+						<Link
+							to="/admin"
+							className="flex items-center gap-3 rounded-md px-4 py-3 text-white transition-colors hover:bg-blue-600"
+							style={{ backgroundColor: "oklch(60.9% 0.126 221.723)" }}
+						>
+							<ChartColumnDecreasing size={20} />
+							Dashboard
 						</Link>
 						<div
 							className="flex items-center gap-3 rounded-md px-4 py-3 text-white"

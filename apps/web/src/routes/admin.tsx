@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	AlertCircle,
 	Calendar,
+	ChartColumnDecreasing,
 	Clock,
 	Home,
 	LogOut,
@@ -11,7 +12,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuthGuard } from "../hooks/use-session";
-import { customSignOut, isAdmin } from "../lib/auth-client";
+import { customSignOut } from "../lib/auth-client";
 import {
 	getAllUsersStatistics,
 	type UserStatistics,
@@ -52,7 +53,7 @@ function AdminDashboardComponent() {
 		);
 	}
 
-	if (!session || !isAdmin(session)) {
+	if (!session) {
 		return null;
 	}
 
@@ -93,13 +94,22 @@ function AdminDashboardComponent() {
 			<div className="flex flex-1 overflow-hidden">
 				<aside className="w-48 p-4" style={{ backgroundColor: "#1a2233" }}>
 					<nav className="flex flex-col gap-2">
-						<div
-							className="flex items-center gap-3 rounded-md px-4 py-3 text-white"
+						<Link
+							to="/dashboard"
+							className="flex items-center gap-3 rounded-md px-4 py-3 text-white transition-colors hover:bg-blue-600"
 							style={{ backgroundColor: "#2c77f9" }}
 						>
 							<Home size={20} />
 							Início
-						</div>
+						</Link>
+						<Link
+							to="/admin"
+							className="flex items-center gap-3 rounded-md px-4 py-3 text-white transition-colors hover:bg-blue-600"
+							style={{ backgroundColor: "oklch(60.9% 0.126 221.723)" }}
+						>
+							<ChartColumnDecreasing size={20} />
+							Dashboard
+						</Link>
 						<Link
 							to="/settings"
 							className="flex items-center gap-3 rounded-md px-4 py-3 text-white transition-colors hover:bg-blue-600"

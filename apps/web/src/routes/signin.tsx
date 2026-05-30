@@ -35,21 +35,13 @@ function SignInComponent() {
 
 		setIsLoading(true);
 		await customSignIn(data.email, data.password)
-			.then((res) => {
-				console.log("Olha o res =>", res);
-				const { user } = res;
+			.then(() => {
 				toast.success("Login realizado com sucesso!", {
 					autoClose: 3000,
 					closeOnClick: true,
 				});
 
-				if (user.role === "admin") {
-					console.log("O usuário é admin !");
-					navigate({ to: "/admin", replace: true });
-				} else {
-					console.log("O usuário não é admin !");
-					navigate({ to: "/dashboard" });
-				}
+				navigate({ to: "/dashboard" });
 			})
 			.catch((error) => {
 				toast.error(getAuthErrorMessage(error));
