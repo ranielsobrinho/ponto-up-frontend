@@ -8,6 +8,7 @@ function formatDateTime(iso: string): string {
 		year: "numeric",
 		hour: "2-digit",
 		minute: "2-digit",
+		timeZone: "UTC",
 	});
 }
 
@@ -17,6 +18,7 @@ function formatTime(iso: string): string {
 	return d.toLocaleTimeString("pt-BR", {
 		hour: "2-digit",
 		minute: "2-digit",
+		timeZone: "UTC",
 	});
 }
 
